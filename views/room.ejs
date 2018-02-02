@@ -1,0 +1,64 @@
+<head>  
+  <title><%= title %></title>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+  <script>
+  var socket = io();
+
+  $('#new-message').keypress(function(e) {
+    if(e.which == 13) {
+      sendFunction();
+    }
+  });
+  function sendFunction() {
+    var msg = {
+      name: '<%= name %>',
+      email: '<%= email %>',
+      message: $('#new-message').val(),
+      toEmail: '<%= toEmail %>',
+      date: Date.now()
+    }
+    socket.emit('new message', msg, function(data) {
+      console.log(data);
+    });
+    $('#new-message').val('');
+  }
+
+  socket.on('chat message', function(msg){
+    console.log(msg);
+    if ('<%= email %>' == msg.email) {
+      var li = $("<li  class='list-group-item you list-group-item-warning'><div>" + msg.message + "</div> <i>" + msg.from + "</i></li>")
+      $('#messages-area').append(li);
+    } else if ('<%= email %>' == msg.toEmail) {
+      var li = $("<li  class='list-group-item'><div>" + msg.message + "</div> <i>" + msg.from + "</i></li>")
+      $('#messages-area').append(li);
+    }
+  });
+
+  </script>
+  <style>
+    .you {
+      text-align: right;
+    }
+  </style>
+</head>  
+<body>  
+    <ul class="list-group" id="messages-area"></ul>
+
+
+    <nav class="navbar navbar-default navbar-fixed-bottom">
+      <div class="container">
+          <form class="form-inline" style="margin-top: 10px;" id="form" onsubmit="return false;">
+              <div class="form-group col-sm-10">
+                <input type="text" style="width: 100%" class="form-control" id="new-message" placeholder="Your message">
+              </div>
+              <button type="button" onclick="sendFunction();" class="btn btn-primary">Send</button>
+            </form>
+      </div>
+    </nav>
+
+</body>
